@@ -27,12 +27,14 @@ export default function Sidebar() {
       {/* Desktop: coluna fixa à esquerda */}
       <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-surface md:flex">
         <div className="flex items-center gap-2 px-5 py-5">
-          <div
-            className="flex h-9 w-9 items-center justify-center rounded-xl2 text-base"
-            style={{ background: "linear-gradient(135deg, #F49AC2, #C6A8F0 55%, #8FCDF2)" }}
-          >
-            🦄
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/mascot.png"
+            alt=""
+            width={36}
+            height={36}
+            className="h-9 w-9 rounded-xl2 object-cover"
+          />
           <div>
             <p className="text-sm font-semibold text-ink">Financeiro da Tita</p>
             <p className="text-xs text-muted">Tita Finance OS</p>
