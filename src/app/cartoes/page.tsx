@@ -9,7 +9,7 @@ import {
   proximasFaturasCartao,
 } from "@/lib/calc";
 import EmptyState from "@/components/EmptyState";
-import { classNames, formatBRL, formatDateBR } from "@/lib/format";
+import { classNames, formatBRL, formatDateBR, parseBRL } from "@/lib/format";
 
 export default function CartoesPage() {
   const { cartoes, movimentacoes, addCartao } = useFinance();
@@ -141,7 +141,7 @@ function NovoCartaoForm({
             if (!nome.trim() || !limite) return;
             onSubmit({
               nome: nome.trim(),
-              limite: Number(limite.replace(",", ".")) || 0,
+              limite: parseBRL(limite),
               diaFechamento: Number(diaFechamento) || 1,
               diaVencimento: Number(diaVencimento) || 1,
               cor,

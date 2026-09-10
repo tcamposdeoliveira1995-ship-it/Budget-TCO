@@ -258,6 +258,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
         dia_vencimento: recorrencia.diaVencimento,
         frequencia: recorrencia.frequencia,
         ativo: recorrencia.ativo,
+        tipo: recorrencia.tipo,
       }).catch((err) => console.error("Erro ao salvar recorrência na planilha:", err));
     }
   }, []);

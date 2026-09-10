@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { useFinance, sugerirCategoria, type NovaMovimentacaoInput } from "@/lib/store";
-import { todayISO } from "@/lib/format";
+import { parseBRL, todayISO } from "@/lib/format";
 import type { FormaPagamento, TipoMovimentacao } from "@/lib/types";
 
 const FORMAS: { value: FormaPagamento; label: string }[] = [
@@ -15,7 +15,7 @@ const FORMAS: { value: FormaPagamento; label: string }[] = [
 ];
 
 export default function MovimentacaoForm({ onClose }: { onClose: () => void }) {
-  const { contas, cartoes, categorias, addMovimentacao } = useFinance();
+  const { contas, cartoes, categorias, addMovimentacao, addConta, addRecorrencia } = useFinance();
 
   const [tipo, setTipo] = useState<TipoMovimentacao>("despesa");
   const [descricao, setDescricao] = useState("");
@@ -27,10 +27,20 @@ export default function MovimentacaoForm({ onClose }: { onClose: () => void }) {
   const [dataCompra, setDataCompra] = useState(todayISO());
   const [totalParcelas, setTotalParcelas] = useState("1");
   const [jaPago, setJaPago] = useState(false);
+  const [repetirTodoMes, setRepetirTodoMes] = useState(false);
   const [sugestaoAplicada, setSugestaoAplicada] = useState(false);
+  const [novaContaAberta, setNovaContaAberta] = useState(false);
+  const [novaContaNome, setNovaContaNome] = useState("");
 
   const categoriasDoTipo = categorias.filter((c) => c.tipo === tipo);
   const usaCartao = formaPagamento === "credito";
+  const podeRepetir = !usaCartao || Math.max(1, Number(totalParcelas) || 1) === 1;
+
+  // Se a conta selecionada some da lista (ex: acabou de trocar de tipo) ou
+  // ainda não tem nenhuma, seleciona a primeira disponível automaticamente.
+  useEffect(() => {
+    if (!contaId && contas[0]) setContaId(contas[0].id);
+  }, [contas, contaId]);
 
   // "Camada inteligente": ao digitar a descrição, sugere categoria + forma de
   // pagamento com base em palavras-chave — só na primeira vez que casa (não
@@ -51,7 +61,7 @@ export default function MovimentacaoForm({ onClose }: { onClose: () => void }) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const valorNumerico = Number(valor.replace(",", "."));
+    const valorNumerico = parseBRL(valor);
     if (!descricao.trim() || !valorNumerico || !categoriaId) return;
 
     const input: NovaMovimentacaoInput = {
@@ -67,7 +77,31 @@ export default function MovimentacaoForm({ onClose }: { onClose: () => void }) {
       jaPago,
     };
     addMovimentacao(input);
+
+    if (repetirTodoMes && podeRepetir) {
+      const diaVencimento = Number(dataCompra.split("-")[2]) || 1;
+      addRecorrencia({
+        descricao: descricao.trim(),
+        valor: valorNumerico,
+        categoriaId,
+        diaVencimento,
+        frequencia: "mensal",
+        ativo: true,
+        tipo: tipo === "receita" ? "receita" : "despesa",
+      });
+    }
+
     onClose();
+  }
+
+  function criarConta() {
+    if (!novaContaNome.trim()) return;
+    addConta({ nome: novaContaNome.trim(), tipo: "corrente", saldoInicial: 0 });
+    setNovaContaNome("");
+    setNovaContaAberta(false);
+    // A conta nova entra no fim da lista; o useEffect acima só preenche
+    // contaId quando ele está vazio, então aqui é seguro assumir que ela
+    // vai aparecer no <select> — quem usa escolhe se quiser trocar.
   }
 
   return (
@@ -175,24 +209,74 @@ export default function MovimentacaoForm({ onClose }: { onClose: () => void }) {
                   onChange={(e) => setTotalParcelas(e.target.value)}
                   className="input"
                 />
+                <p className="mt-1 text-xs text-muted">
+                  1 = compra à vista ou assinatura. Só aumenta se for parcelado de verdade (ex: 10x no notebook).
+                </p>
               </Campo>
             </div>
           ) : (
-            <Campo label="Conta">
-              <select value={contaId} onChange={(e) => setContaId(e.target.value)} className="input">
-                {contas.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.nome}
-                  </option>
-                ))}
-              </select>
-            </Campo>
+            <div>
+              <Campo label="Conta">
+                {contas.length > 0 ? (
+                  <select value={contaId} onChange={(e) => setContaId(e.target.value)} className="input">
+                    {contas.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.nome}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <p className="rounded-xl border border-dashed border-border px-3 py-2 text-xs text-muted">
+                    Você ainda não tem nenhuma conta cadastrada.
+                  </p>
+                )}
+              </Campo>
+
+              {novaContaAberta ? (
+                <div className="mt-2 flex gap-2">
+                  <input
+                    value={novaContaNome}
+                    onChange={(e) => setNovaContaNome(e.target.value)}
+                    placeholder="Ex: Nubank, Carteira..."
+                    className="input"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={criarConta}
+                    className="shrink-0 rounded-xl bg-brand-500 px-3 py-2 text-sm font-medium text-white hover:bg-brand-600"
+                  >
+                    Criar
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setNovaContaAberta(true)}
+                  className="mt-1.5 flex items-center gap-1 text-xs font-medium text-brand-600 hover:text-brand-700"
+                >
+                  <Plus size={12} /> Nova conta
+                </button>
+              )}
+            </div>
           )}
 
           <label className="flex items-center gap-2 text-sm text-ink">
             <input type="checkbox" checked={jaPago} onChange={(e) => setJaPago(e.target.checked)} />
             Já {tipo === "receita" ? "recebi" : "paguei"}
           </label>
+
+          {podeRepetir && (
+            <label className="flex items-center gap-2 text-sm text-ink">
+              <input
+                type="checkbox"
+                checked={repetirTodoMes}
+                onChange={(e) => setRepetirTodoMes(e.target.checked)}
+              />
+              🔁 Repetir todo mês (vira uma {tipo === "receita" ? "renda" : "conta"} fixa em
+              &nbsp;<span className="font-medium">Contas e Parcelas</span>)
+            </label>
+          )}
 
           <button
             type="submit"

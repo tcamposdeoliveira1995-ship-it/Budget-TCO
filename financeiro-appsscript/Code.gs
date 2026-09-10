@@ -36,7 +36,7 @@ const ABAS = {
     "forma_pagamento", "data_compra", "data_vencimento", "data_pagamento", "status",
     "parcela_grupo_id", "numero_parcela", "total_parcelas",
   ],
-  Recorrencias: ["id", "descricao", "valor", "categoria_id", "dia_vencimento", "frequencia", "ativo"],
+  Recorrencias: ["id", "descricao", "valor", "categoria_id", "dia_vencimento", "frequencia", "ativo", "tipo"],
   Orcamentos: ["id", "categoria_id", "mes", "ano", "limite"],
   Metas: ["id", "nome", "valor_meta", "valor_atual", "data_limite"],
 };
@@ -249,6 +249,7 @@ function doGet(e) {
       diaVencimento: Number(r.dia_vencimento) || 1,
       frequencia: r.frequencia,
       ativo: paraBooleano_(r.ativo),
+      tipo: r.tipo || "despesa",
     }));
 
     const orcamentos = lote.Orcamentos.map((o) => ({
@@ -408,6 +409,7 @@ function addRecorrencia_(ss, dados) {
     dia_vencimento: Number(dados.dia_vencimento) || 1,
     frequencia: dados.frequencia || "mensal",
     ativo: dados.ativo !== false,
+    tipo: dados.tipo === "receita" ? "receita" : "despesa",
   });
   return { id: id };
 }

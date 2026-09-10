@@ -6,8 +6,8 @@ import { useFinance } from "@/lib/store";
 import { proximosVencimentos } from "@/lib/calc";
 import EmptyState from "@/components/EmptyState";
 import SectionCard from "@/components/SectionCard";
-import { classNames, formatBRL, formatDateBR } from "@/lib/format";
-import type { Frequencia } from "@/lib/types";
+import { classNames, formatBRL, formatDateBR, parseBRL } from "@/lib/format";
+import type { Frequencia, TipoMovimentacao } from "@/lib/types";
 
 const FREQUENCIA_LABEL: Record<Frequencia, string> = {
   mensal: "Mensal",
@@ -43,12 +43,12 @@ export default function ContasFixasPage() {
     <div className="space-y-6">
       <header>
         <h1 className="text-xl font-semibold text-ink">Contas e Parcelas</h1>
-        <p className="text-sm text-muted">Gastos fixos, assinaturas e o que está parcelado.</p>
+        <p className="text-sm text-muted">Renda fixa, gastos fixos, assinaturas e o que está parcelado.</p>
       </header>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <SectionCard
-          title="Gastos fixos e assinaturas"
+          title="Recorrências"
           action={
             <button
               onClick={() => setFormAberto(true)}
@@ -59,7 +59,7 @@ export default function ContasFixasPage() {
           }
         >
           {recorrencias.length === 0 ? (
-            <EmptyState text="Nenhuma conta fixa cadastrada." />
+            <EmptyState text="Nenhuma recorrência cadastrada ainda — renda fixa, aluguel, assinaturas..." />
           ) : (
             <ul className="divide-y divide-border">
               {recorrencias.map((r) => (
@@ -74,7 +74,10 @@ export default function ContasFixasPage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-ink">{formatBRL(r.valor)}</span>
+                    <span className={classNames("text-sm font-medium", r.tipo === "receita" ? "text-good" : "text-ink")}>
+                      {r.tipo === "receita" ? "+" : "−"}
+                      {formatBRL(r.valor)}
+                    </span>
                     <label className="relative inline-flex h-5 w-9 cursor-pointer items-center">
                       <input
                         type="checkbox"
@@ -160,18 +163,25 @@ export default function ContasFixasPage() {
 
 function NovaRecorrenciaForm({ onClose }: { onClose: () => void }) {
   const { categorias, addRecorrencia } = useFinance();
-  const despesas = categorias.filter((c) => c.tipo === "despesa");
+  const [tipo, setTipo] = useState<TipoMovimentacao>("despesa");
+  const categoriasDoTipo = categorias.filter((c) => c.tipo === tipo);
   const [descricao, setDescricao] = useState("");
   const [valor, setValor] = useState("");
-  const [categoriaId, setCategoriaId] = useState(despesas[0]?.id ?? "");
+  const [categoriaId, setCategoriaId] = useState(categoriasDoTipo[0]?.id ?? "");
   const [diaVencimento, setDiaVencimento] = useState("10");
   const [frequencia, setFrequencia] = useState<Frequencia>("mensal");
+
+  function trocarTipo(novoTipo: TipoMovimentacao) {
+    setTipo(novoTipo);
+    const primeira = categorias.find((c) => c.tipo === novoTipo);
+    setCategoriaId(primeira?.id ?? "");
+  }
 
   return (
     <div className="fixed inset-0 z-30 flex items-end justify-center bg-ink/40 p-0 sm:items-center sm:p-4">
       <div className="w-full max-w-sm rounded-t-2xl bg-surface p-5 shadow-card sm:rounded-2xl">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-ink">Nova conta fixa</h2>
+          <h2 className="text-base font-semibold text-ink">Nova recorrência</h2>
           <button onClick={onClose} className="rounded-lg p-1.5 text-muted hover:bg-canvas" aria-label="Fechar">
             <X size={18} />
           </button>
@@ -183,18 +193,39 @@ function NovaRecorrenciaForm({ onClose }: { onClose: () => void }) {
             if (!descricao.trim() || !valor || !categoriaId) return;
             addRecorrencia({
               descricao: descricao.trim(),
-              valor: Number(valor.replace(",", ".")) || 0,
+              valor: parseBRL(valor),
               categoriaId,
               diaVencimento: Number(diaVencimento) || 1,
               frequencia,
               ativo: true,
+              tipo: tipo === "receita" ? "receita" : "despesa",
             });
             onClose();
           }}
         >
+          <div className="flex gap-2">
+            {(["despesa", "receita"] as const).map((t) => (
+              <button
+                type="button"
+                key={t}
+                onClick={() => trocarTipo(t)}
+                className={`flex-1 rounded-xl border px-3 py-2 text-sm font-medium ${
+                  tipo === t ? "border-brand-500 bg-brand-50 text-brand-700" : "border-border text-muted"
+                }`}
+              >
+                {t === "despesa" ? "Gasto fixo" : "Renda fixa"}
+              </button>
+            ))}
+          </div>
           <label className="block text-sm">
             <span className="mb-1 block font-medium text-ink">Descrição</span>
-            <input value={descricao} onChange={(e) => setDescricao(e.target.value)} className="input" placeholder="Ex: Aluguel" required />
+            <input
+              value={descricao}
+              onChange={(e) => setDescricao(e.target.value)}
+              className="input"
+              placeholder={tipo === "receita" ? "Ex: Salário" : "Ex: Aluguel"}
+              required
+            />
           </label>
           <div className="grid grid-cols-2 gap-3">
             <label className="block text-sm">
@@ -209,7 +240,7 @@ function NovaRecorrenciaForm({ onClose }: { onClose: () => void }) {
           <label className="block text-sm">
             <span className="mb-1 block font-medium text-ink">Categoria</span>
             <select value={categoriaId} onChange={(e) => setCategoriaId(e.target.value)} className="input">
-              {despesas.map((c) => (
+              {categoriasDoTipo.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.nome}
                 </option>

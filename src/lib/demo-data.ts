@@ -376,12 +376,13 @@ export const movimentacoes: Movimentacao[] = [
 ];
 
 export const recorrencias: Recorrencia[] = [
-  { id: "rec-aluguel", descricao: "Aluguel", valor: 1400, categoriaId: "cat-moradia", diaVencimento: 10, frequencia: "mensal", ativo: true },
-  { id: "rec-condominio", descricao: "Condomínio", valor: 350, categoriaId: "cat-moradia", diaVencimento: 10, frequencia: "mensal", ativo: true },
-  { id: "rec-internet", descricao: "Internet", valor: 120, categoriaId: "cat-moradia", diaVencimento: 12, frequencia: "mensal", ativo: true },
-  { id: "rec-academia", descricao: "Academia", valor: 99, categoriaId: "cat-saude", diaVencimento: 15, frequencia: "mensal", ativo: true },
-  { id: "rec-netflix", descricao: "Netflix", valor: 44.9, categoriaId: "cat-assinaturas", diaVencimento: 1, frequencia: "mensal", ativo: true },
-  { id: "rec-spotify", descricao: "Spotify", valor: 21.9, categoriaId: "cat-assinaturas", diaVencimento: 1, frequencia: "mensal", ativo: true },
+  { id: "rec-salario", descricao: "Salário", valor: 4200, categoriaId: "cat-salario", diaVencimento: 5, frequencia: "mensal", ativo: true, tipo: "receita" },
+  { id: "rec-aluguel", descricao: "Aluguel", valor: 1400, categoriaId: "cat-moradia", diaVencimento: 10, frequencia: "mensal", ativo: true, tipo: "despesa" },
+  { id: "rec-condominio", descricao: "Condomínio", valor: 350, categoriaId: "cat-moradia", diaVencimento: 10, frequencia: "mensal", ativo: true, tipo: "despesa" },
+  { id: "rec-internet", descricao: "Internet", valor: 120, categoriaId: "cat-moradia", diaVencimento: 12, frequencia: "mensal", ativo: true, tipo: "despesa" },
+  { id: "rec-academia", descricao: "Academia", valor: 99, categoriaId: "cat-saude", diaVencimento: 15, frequencia: "mensal", ativo: true, tipo: "despesa" },
+  { id: "rec-netflix", descricao: "Netflix", valor: 44.9, categoriaId: "cat-assinaturas", diaVencimento: 1, frequencia: "mensal", ativo: true, tipo: "despesa" },
+  { id: "rec-spotify", descricao: "Spotify", valor: 21.9, categoriaId: "cat-assinaturas", diaVencimento: 1, frequencia: "mensal", ativo: true, tipo: "despesa" },
 ];
 
 export const orcamentos: Orcamento[] = [

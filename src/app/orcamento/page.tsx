@@ -6,7 +6,7 @@ import { useFinance } from "@/lib/store";
 import { currentMonthYear, gastosPorCategoria, progressoOrcamentos } from "@/lib/calc";
 import BudgetBar from "@/components/BudgetBar";
 import EmptyState from "@/components/EmptyState";
-import { monthLabel } from "@/lib/format";
+import { monthLabel, parseBRL } from "@/lib/format";
 
 export default function OrcamentoPage() {
   const state = useFinance();
@@ -112,7 +112,7 @@ function OrcamentoForm({
           onSubmit={(e) => {
             e.preventDefault();
             if (!categoriaId || !limite) return;
-            onSubmit({ categoriaId, mes, ano, limite: Number(limite.replace(",", ".")) || 0 });
+            onSubmit({ categoriaId, mes, ano, limite: parseBRL(limite) });
           }}
         >
           <label className="block text-sm">

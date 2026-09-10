@@ -7,6 +7,18 @@ export function formatBRL(value: number): string {
   return currencyFormatter.format(value ?? 0);
 }
 
+/**
+ * Lê um valor digitado no formato brasileiro ("1.275,00", "35,5", "35") e
+ * devolve um number. Tira os pontos de milhar ANTES de trocar a vírgula
+ * decimal por ponto — fazer só `replace(",", ".")` quebra em qualquer valor
+ * ≥ 1000 (vira "1.275.00", que não é um número válido).
+ */
+export function parseBRL(value: string): number {
+  const limpo = value.trim().replace(/\./g, "").replace(",", ".");
+  const n = Number(limpo);
+  return Number.isFinite(n) ? n : 0;
+}
+
 export function formatDateBR(iso?: string | null): string {
   if (!iso) return "—";
   const [year, month, day] = iso.split("-");

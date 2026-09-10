@@ -81,6 +81,7 @@ export interface Recorrencia {
   diaVencimento: number;
   frequencia: Frequencia;
   ativo: boolean;
+  tipo: "receita" | "despesa";
 }
 
 export interface Orcamento {
