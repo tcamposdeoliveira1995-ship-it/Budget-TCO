@@ -72,13 +72,20 @@ export function saldoAtual(state: FinanceState): number {
   return state.contas.reduce((s, c) => s + saldoPorConta(c, state.movimentacoes), 0);
 }
 
+// "Gastos/entradas do mês" olha dataVencimento, não dataCompra — cada
+// parcela já vale só o valor daquela parcela (ex: R$1.000 de um empréstimo
+// de 12x), então é ela que deve contar no mês em que realmente vence, e não
+// tudo de uma vez no mês em que a compra/contratação foi feita. Somando um
+// parcelamento inteiro pelos meses de vencimento, o total bate certinho com
+// o valor da compra — por dataCompra, os 12x cairiam inteiros num mês só.
+
 export function totalEntradasMes(
   state: FinanceState,
   mes: number,
   ano: number
 ): number {
   return state.movimentacoes
-    .filter((m) => m.tipo === "receita" && inMonth(m.dataCompra, mes, ano))
+    .filter((m) => m.tipo === "receita" && inMonth(m.dataVencimento, mes, ano))
     .reduce((s, m) => s + m.valor, 0);
 }
 
@@ -88,7 +95,7 @@ export function totalGastosMes(
   ano: number
 ): number {
   return state.movimentacoes
-    .filter((m) => m.tipo === "despesa" && inMonth(m.dataCompra, mes, ano))
+    .filter((m) => m.tipo === "despesa" && inMonth(m.dataVencimento, mes, ano))
     .reduce((s, m) => s + m.valor, 0);
 }
 
@@ -97,15 +104,29 @@ export interface ItemPendente {
   atrasado: boolean;
 }
 
-/** Contas fixas/avulsas pendentes que saem de uma conta (não de cartão). */
-export function contasAPagar(state: FinanceState): {
+/**
+ * Contas fixas/avulsas pendentes que saem de uma conta (não de cartão).
+ * Só conta o que vence nos próximos `diasJanela` dias (ou já atrasado) — uma
+ * parcela de empréstimo que só vence daqui a 8 meses não deveria "comer" o
+ * seu dinheiro disponível hoje, do mesmo jeito que a fatura do cartão só
+ * conta a próxima em aberto, não todas as parcelas futuras de uma vez.
+ */
+export function contasAPagar(
+  state: FinanceState,
+  diasJanela = 45
+): {
   total: number;
   itens: ItemPendente[];
 } {
   const hoje = todayISO();
+  const limite = addDaysISO(hoje, diasJanela);
   const itens = state.movimentacoes
     .filter(
-      (m) => m.tipo === "despesa" && m.contaId && m.status !== "pago"
+      (m) =>
+        m.tipo === "despesa" &&
+        m.contaId &&
+        m.status !== "pago" &&
+        m.dataVencimento <= limite
     )
     .map((m) => ({ movimentacao: m, atrasado: m.dataVencimento < hoje }))
     .sort((a, b) =>
@@ -220,7 +241,7 @@ export function gastosPorCategoria(
 ): GastoCategoria[] {
   const porId = new Map<string, number>();
   for (const m of state.movimentacoes) {
-    if (m.tipo !== "despesa" || !inMonth(m.dataCompra, mes, ano)) continue;
+    if (m.tipo !== "despesa" || !inMonth(m.dataVencimento, mes, ano)) continue;
     porId.set(m.categoriaId, (porId.get(m.categoriaId) ?? 0) + m.valor);
   }
   return [...porId.entries()]

@@ -34,7 +34,8 @@ export default function MovimentacaoForm({ onClose }: { onClose: () => void }) {
 
   const categoriasDoTipo = categorias.filter((c) => c.tipo === tipo);
   const usaCartao = formaPagamento === "credito";
-  const podeRepetir = !usaCartao || Math.max(1, Number(totalParcelas) || 1) === 1;
+  const numeroParcelas = Math.max(1, Number(totalParcelas) || 1);
+  const podeRepetir = numeroParcelas === 1;
 
   // Se a conta selecionada some da lista (ex: acabou de trocar de tipo) ou
   // ainda não tem nenhuma, seleciona a primeira disponível automaticamente.
@@ -73,7 +74,7 @@ export default function MovimentacaoForm({ onClose }: { onClose: () => void }) {
       dataCompra,
       contaId: usaCartao ? null : contaId || null,
       cartaoId: usaCartao ? cartaoId || null : null,
-      totalParcelas: usaCartao ? Math.max(1, Number(totalParcelas) || 1) : 1,
+      totalParcelas: numeroParcelas,
       jaPago,
     };
     addMovimentacao(input);
@@ -189,8 +190,8 @@ export default function MovimentacaoForm({ onClose }: { onClose: () => void }) {
             </select>
           </Campo>
 
-          {usaCartao ? (
-            <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3">
+            {usaCartao ? (
               <Campo label="Cartão">
                 <select value={cartaoId} onChange={(e) => setCartaoId(e.target.value)} className="input">
                   {cartoes.map((c) => (
@@ -200,22 +201,7 @@ export default function MovimentacaoForm({ onClose }: { onClose: () => void }) {
                   ))}
                 </select>
               </Campo>
-              <Campo label="Parcelas">
-                <input
-                  type="number"
-                  min={1}
-                  max={36}
-                  value={totalParcelas}
-                  onChange={(e) => setTotalParcelas(e.target.value)}
-                  className="input"
-                />
-                <p className="mt-1 text-xs text-muted">
-                  1 = compra à vista ou assinatura. Só aumenta se for parcelado de verdade (ex: 10x no notebook).
-                </p>
-              </Campo>
-            </div>
-          ) : (
-            <div>
+            ) : (
               <Campo label="Conta">
                 {contas.length > 0 ? (
                   <select value={contaId} onChange={(e) => setContaId(e.target.value)} className="input">
@@ -227,39 +213,54 @@ export default function MovimentacaoForm({ onClose }: { onClose: () => void }) {
                   </select>
                 ) : (
                   <p className="rounded-xl border border-dashed border-border px-3 py-2 text-xs text-muted">
-                    Você ainda não tem nenhuma conta cadastrada.
+                    Nenhuma conta ainda.
                   </p>
                 )}
               </Campo>
+            )}
+            <Campo label="Parcelas">
+              <input
+                type="number"
+                min={1}
+                max={60}
+                value={totalParcelas}
+                onChange={(e) => setTotalParcelas(e.target.value)}
+                className="input"
+              />
+            </Campo>
+          </div>
+          <p className="-mt-2 text-xs text-muted">
+            Parcelas: 1 = à vista ou assinatura. Só aumenta se for parcelado de verdade (cartão, empréstimo,
+            financiamento com débito automático...).
+          </p>
 
-              {novaContaAberta ? (
-                <div className="mt-2 flex gap-2">
-                  <input
-                    value={novaContaNome}
-                    onChange={(e) => setNovaContaNome(e.target.value)}
-                    placeholder="Ex: Nubank, Carteira..."
-                    className="input"
-                    autoFocus
-                  />
-                  <button
-                    type="button"
-                    onClick={criarConta}
-                    className="shrink-0 rounded-xl bg-brand-500 px-3 py-2 text-sm font-medium text-white hover:bg-brand-600"
-                  >
-                    Criar
-                  </button>
-                </div>
-              ) : (
+          {!usaCartao &&
+            (novaContaAberta ? (
+              <div className="-mt-2 flex gap-2">
+                <input
+                  value={novaContaNome}
+                  onChange={(e) => setNovaContaNome(e.target.value)}
+                  placeholder="Nome da conta nova (ex: Nubank)"
+                  className="input"
+                  autoFocus
+                />
                 <button
                   type="button"
-                  onClick={() => setNovaContaAberta(true)}
-                  className="mt-1.5 flex items-center gap-1 text-xs font-medium text-brand-600 hover:text-brand-700"
+                  onClick={criarConta}
+                  className="shrink-0 rounded-xl bg-brand-500 px-3 py-2 text-sm font-medium text-white hover:bg-brand-600"
                 >
-                  <Plus size={12} /> Nova conta
+                  Criar
                 </button>
-              )}
-            </div>
-          )}
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setNovaContaAberta(true)}
+                className="-mt-2 flex items-center gap-1 text-xs font-medium text-brand-600 hover:text-brand-700"
+              >
+                <Plus size={12} /> Nova conta
+              </button>
+            ))}
 
           <label className="flex items-center gap-2 text-sm text-ink">
             <input type="checkbox" checked={jaPago} onChange={(e) => setJaPago(e.target.checked)} />
