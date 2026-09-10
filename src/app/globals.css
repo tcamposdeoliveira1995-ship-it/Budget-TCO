@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+html,
+body {
+  background: theme("colors.canvas");
+  color: theme("colors.ink");
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid theme("colors.border");
+  background: theme("colors.surface");
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: theme("colors.ink");
+}
+.input:focus {
+  outline: none;
+  border-color: theme("colors.brand.500");
+  box-shadow: 0 0 0 3px theme("colors.brand.100");
+}
+
+::selection {
+  background: theme("colors.brand.100");
+}
+
+/* Barra de progresso de orçamento — largura controlada via style inline (--pct) */
+.budget-bar {
+  position: relative;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: theme("colors.canvas");
+  overflow: hidden;
+}
+.budget-bar > span {
+  display: block;
+  height: 100%;
+  width: calc(var(--pct, 0) * 1%);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
