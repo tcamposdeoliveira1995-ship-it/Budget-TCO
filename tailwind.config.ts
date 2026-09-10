@@ -6,22 +6,33 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#0f172a",
+        // Arco-íris pastel + unicórnio: lilás como cor principal, fundo com
+        // leve tingimento lavanda, semânticas (good/bad/warn) suavizadas mas
+        // ainda com contraste suficiente pra ler números em cima.
+        ink: "#3D2B4F",
         surface: "#ffffff",
-        canvas: "#f6f7fb",
-        border: "#e6e8f0",
-        muted: "#6b7280",
+        canvas: "#FBF6FF",
+        border: "#EEE0FA",
+        muted: "#7A6690",
         brand: {
-          50: "#f0fdf9",
-          100: "#ccfbef",
-          400: "#2dd4bf",
-          500: "#0f9d8c",
-          600: "#0b7d70",
-          700: "#0a5f56",
+          50: "#F6F0FE",
+          100: "#EBDFFD",
+          400: "#B48EF0",
+          500: "#8B5CF6",
+          600: "#7C3AED",
+          700: "#6425C4",
         },
-        good: "#0f9d58",
-        bad: "#dc2626",
-        warn: "#d97706",
+        good: "#3FB88A",
+        bad: "#E8607D",
+        warn: "#EAA648",
+        rainbow: {
+          pink: "#F49AC2",
+          peach: "#FFC98B",
+          yellow: "#FCE28C",
+          mint: "#8FE0B0",
+          sky: "#8FCDF2",
+          lilac: "#C6A8F0",
+        },
       },
       fontFamily: {
         sans: [

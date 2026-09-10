@@ -139,7 +139,7 @@ export default function ContasFixasPage() {
                     </span>
                   </div>
                   <div className="budget-bar" style={{ ["--pct" as string]: pct }}>
-                    <span style={{ background: "#0f9d8c" }} />
+                    <span style={{ background: "#8B5CF6" }} />
                   </div>
                   {p.proxima && (
                     <p className="mt-2 text-xs text-muted">

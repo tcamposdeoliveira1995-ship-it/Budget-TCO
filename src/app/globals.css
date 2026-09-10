@@ -12,6 +12,15 @@ body {
   color: theme("colors.ink");
 }
 
+/* Um arco-íris bem suave no fundo, só pra dar a vibe sem atrapalhar leitura. */
+body {
+  background-image:
+    radial-gradient(ellipse 900px 500px at 8% -10%, rgba(244, 154, 194, 0.16), transparent 60%),
+    radial-gradient(ellipse 900px 500px at 100% 0%, rgba(143, 205, 242, 0.16), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 50% 100%, rgba(198, 168, 240, 0.12), transparent 60%);
+  background-attachment: fixed;
+}
+
 * {
   box-sizing: border-box;
 }

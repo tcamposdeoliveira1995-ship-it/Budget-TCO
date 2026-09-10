@@ -10,7 +10,7 @@ export default function BudgetBar({
   limite: number;
 }) {
   const pct = limite > 0 ? Math.round((gasto / limite) * 100) : 0;
-  const cor = pct >= 100 ? "#dc2626" : pct >= 80 ? "#d97706" : "#0f9d8c";
+  const cor = pct >= 100 ? "#E8607D" : pct >= 80 ? "#EAA648" : "#8B5CF6";
 
   return (
     <div>

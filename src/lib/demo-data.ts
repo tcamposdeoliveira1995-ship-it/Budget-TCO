@@ -46,15 +46,15 @@ export const cartoes: Cartao[] = [
 export const categorias: Categoria[] = [
   { id: "cat-salario", nome: "Salário", tipo: "receita" },
   { id: "cat-freela", nome: "Freelance", tipo: "receita" },
-  { id: "cat-alimentacao", nome: "Alimentação", tipo: "despesa", cor: "#0f9d8c" },
-  { id: "cat-delivery", nome: "Delivery", tipo: "despesa", cor: "#ef8354" },
-  { id: "cat-transporte", nome: "Transporte", tipo: "despesa", cor: "#3b82f6" },
-  { id: "cat-moradia", nome: "Moradia", tipo: "despesa", cor: "#6366f1" },
-  { id: "cat-assinaturas", nome: "Assinaturas", tipo: "despesa", cor: "#a855f7" },
-  { id: "cat-saude", nome: "Saúde", tipo: "despesa", cor: "#ec4899" },
-  { id: "cat-lazer", nome: "Lazer", tipo: "despesa", cor: "#f59e0b" },
-  { id: "cat-faculdade", nome: "Faculdade", tipo: "despesa", cor: "#14b8a6" },
-  { id: "cat-compras", nome: "Compras", tipo: "despesa", cor: "#dc2626" },
+  { id: "cat-alimentacao", nome: "Alimentação", tipo: "despesa", cor: "#8FE0B0" },
+  { id: "cat-delivery", nome: "Delivery", tipo: "despesa", cor: "#FFC98B" },
+  { id: "cat-transporte", nome: "Transporte", tipo: "despesa", cor: "#8FCDF2" },
+  { id: "cat-moradia", nome: "Moradia", tipo: "despesa", cor: "#C6A8F0" },
+  { id: "cat-assinaturas", nome: "Assinaturas", tipo: "despesa", cor: "#D9A8ED" },
+  { id: "cat-saude", nome: "Saúde", tipo: "despesa", cor: "#F4A0C0" },
+  { id: "cat-lazer", nome: "Lazer", tipo: "despesa", cor: "#FCE28C" },
+  { id: "cat-faculdade", nome: "Faculdade", tipo: "despesa", cor: "#8DE0C9" },
+  { id: "cat-compras", nome: "Compras", tipo: "despesa", cor: "#F49AC2" },
 ];
 
 export const movimentacoes: Movimentacao[] = [

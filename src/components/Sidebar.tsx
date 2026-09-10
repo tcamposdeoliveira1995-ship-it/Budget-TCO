@@ -8,7 +8,6 @@ import {
   CreditCard,
   CalendarClock,
   Target,
-  Wallet,
 } from "lucide-react";
 import { classNames } from "@/lib/format";
 
@@ -28,8 +27,11 @@ export default function Sidebar() {
       {/* Desktop: coluna fixa à esquerda */}
       <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-surface md:flex">
         <div className="flex items-center gap-2 px-5 py-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl2 bg-brand-500 text-white">
-            <Wallet size={18} />
+          <div
+            className="flex h-9 w-9 items-center justify-center rounded-xl2 text-base"
+            style={{ background: "linear-gradient(135deg, #F49AC2, #C6A8F0 55%, #8FCDF2)" }}
+          >
+            🦄
           </div>
           <div>
             <p className="text-sm font-semibold text-ink">Financeiro da Tita</p>
@@ -58,7 +60,7 @@ export default function Sidebar() {
           })}
         </nav>
         <div className="border-t border-border px-5 py-4 text-xs text-muted">
-          Feito pra saber, de verdade, quanto dá pra gastar. 💸
+          Feito pra saber, de verdade, quanto dá pra gastar. 💸✨
         </div>
       </aside>
 

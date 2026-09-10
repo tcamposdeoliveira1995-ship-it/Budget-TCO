@@ -47,7 +47,7 @@ export default function CartoesPage() {
                 <div className="mb-4 flex items-center gap-3">
                   <span
                     className="h-9 w-9 rounded-xl2"
-                    style={{ background: cartao.cor || "#0f9d8c" }}
+                    style={{ background: cartao.cor || "#8B5CF6" }}
                   />
                   <div>
                     <p className="text-sm font-semibold text-ink">{cartao.nome}</p>
@@ -62,7 +62,7 @@ export default function CartoesPage() {
                   <span>{formatBRL(cartao.limite - disponivel)} de {formatBRL(cartao.limite)}</span>
                 </div>
                 <div className="budget-bar" style={{ ["--pct" as string]: usadoPct }}>
-                  <span style={{ background: usadoPct >= 90 ? "#dc2626" : usadoPct >= 70 ? "#d97706" : "#0f9d8c" }} />
+                  <span style={{ background: usadoPct >= 90 ? "#E8607D" : usadoPct >= 70 ? "#EAA648" : "#8B5CF6" }} />
                 </div>
                 <p className={classNames("mt-1.5 text-xs font-medium", disponivel < 0 ? "text-bad" : "text-good")}>
                   {formatBRL(disponivel)} disponível
@@ -123,7 +123,7 @@ function NovoCartaoForm({
   const [limite, setLimite] = useState("");
   const [diaFechamento, setDiaFechamento] = useState("25");
   const [diaVencimento, setDiaVencimento] = useState("5");
-  const [cor, setCor] = useState("#0f9d8c");
+  const [cor, setCor] = useState("#8B5CF6");
 
   return (
     <div className="fixed inset-0 z-30 flex items-end justify-center bg-ink/40 p-0 sm:items-center sm:p-4">

@@ -30,7 +30,7 @@ import SectionCard from "@/components/SectionCard";
 import EmptyState from "@/components/EmptyState";
 import { classNames, formatBRL, formatDateShortBR } from "@/lib/format";
 
-const CORES_CATEGORIA = ["#0f9d8c", "#3b82f6", "#f59e0b", "#ec4899", "#a855f7", "#dc2626", "#14b8a6", "#6366f1"];
+const CORES_CATEGORIA = ["#F49AC2", "#FFC98B", "#FCE28C", "#8FE0B0", "#8FCDF2", "#C6A8F0"];
 
 export default function DashboardPage() {
   const state = useFinance();
@@ -130,12 +130,12 @@ export default function DashboardPage() {
           <div className="h-56 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={evolucao} barGap={4}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e6e8f0" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#EEE0FA" />
                 <XAxis dataKey="label" tickLine={false} axisLine={false} fontSize={12} />
                 <YAxis tickLine={false} axisLine={false} fontSize={12} width={0} tick={false} />
                 <Tooltip formatter={(v: number) => formatBRL(v)} />
-                <Bar dataKey="receitas" fill="#0f9d8c" radius={[4, 4, 0, 0]} name="Receitas" isAnimationActive={false} />
-                <Bar dataKey="despesas" fill="#dc2626" radius={[4, 4, 0, 0]} name="Despesas" isAnimationActive={false} />
+                <Bar dataKey="receitas" fill="#8FE0B0" radius={[4, 4, 0, 0]} name="Receitas" isAnimationActive={false} />
+                <Bar dataKey="despesas" fill="#F49AC2" radius={[4, 4, 0, 0]} name="Despesas" isAnimationActive={false} />
               </BarChart>
             </ResponsiveContainer>
           </div>
