@@ -1,34 +1,83 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Wallet } from "lucide-react";
 import { useFinance } from "@/lib/store";
 import {
   faturaAtualCartao,
   limiteDisponivelCartao,
   proximasFaturasCartao,
+  saldoPorConta,
 } from "@/lib/calc";
 import EmptyState from "@/components/EmptyState";
+import SectionCard from "@/components/SectionCard";
 import { classNames, formatBRL, formatDateBR, parseBRL } from "@/lib/format";
+import type { TipoConta } from "@/lib/types";
+
+const TIPO_CONTA_LABEL: Record<TipoConta, string> = {
+  corrente: "Conta corrente",
+  poupanca: "Poupança",
+  carteira: "Carteira",
+  investimento: "Investimento",
+};
 
 export default function CartoesPage() {
-  const { cartoes, movimentacoes, addCartao } = useFinance();
-  const [formAberto, setFormAberto] = useState(false);
+  const { contas, cartoes, movimentacoes, addConta, addCartao } = useFinance();
+  const [formContaAberto, setFormContaAberto] = useState(false);
+  const [formCartaoAberto, setFormCartaoAberto] = useState(false);
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold text-ink">Cartões</h1>
-          <p className="text-sm text-muted">Limite, fatura atual e o que ainda vem por aí.</p>
-        </div>
+      <header>
+        <h1 className="text-xl font-semibold text-ink">Contas e Cartões</h1>
+        <p className="text-sm text-muted">Onde seu dinheiro mora, e o que está no crédito.</p>
+      </header>
+
+      <SectionCard
+        title="Minhas contas"
+        action={
+          <button
+            onClick={() => setFormContaAberto(true)}
+            className="flex items-center gap-1.5 rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-600"
+          >
+            <Plus size={14} /> Nova conta
+          </button>
+        }
+      >
+        {contas.length === 0 ? (
+          <EmptyState text="Nenhuma conta cadastrada ainda — sem uma conta, não dá pra saber onde o dinheiro está." />
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {contas.map((conta) => {
+              const saldo = saldoPorConta(conta, movimentacoes);
+              return (
+                <div key={conta.id} className="flex items-center gap-3 rounded-xl border border-border p-4">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl2 bg-brand-50 text-brand-600">
+                    <Wallet size={16} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-ink">{conta.nome}</p>
+                    <p className="text-xs text-muted">{TIPO_CONTA_LABEL[conta.tipo]}</p>
+                    <p className={classNames("text-sm font-medium", saldo < 0 ? "text-bad" : "text-good")}>
+                      {formatBRL(saldo)}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </SectionCard>
+
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-ink">Cartões</h2>
         <button
-          onClick={() => setFormAberto(true)}
+          onClick={() => setFormCartaoAberto(true)}
           className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-600"
         >
           <Plus size={16} /> Novo cartão
         </button>
-      </header>
+      </div>
 
       {cartoes.length === 0 ? (
         <EmptyState text="Nenhum cartão cadastrado ainda." />
@@ -99,15 +148,86 @@ export default function CartoesPage() {
         </div>
       )}
 
-      {formAberto && (
-        <NovoCartaoForm
-          onClose={() => setFormAberto(false)}
+      {formContaAberto && (
+        <NovaContaForm
+          onClose={() => setFormContaAberto(false)}
           onSubmit={(dados) => {
-            addCartao(dados);
-            setFormAberto(false);
+            addConta(dados);
+            setFormContaAberto(false);
           }}
         />
       )}
+
+      {formCartaoAberto && (
+        <NovoCartaoForm
+          onClose={() => setFormCartaoAberto(false)}
+          onSubmit={(dados) => {
+            addCartao(dados);
+            setFormCartaoAberto(false);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function NovaContaForm({
+  onClose,
+  onSubmit,
+}: {
+  onClose: () => void;
+  onSubmit: (dados: { nome: string; tipo: TipoConta; saldoInicial: number }) => void;
+}) {
+  const [nome, setNome] = useState("");
+  const [tipo, setTipo] = useState<TipoConta>("corrente");
+  const [saldoInicial, setSaldoInicial] = useState("");
+
+  return (
+    <div className="fixed inset-0 z-30 flex items-end justify-center bg-ink/40 p-0 sm:items-center sm:p-4">
+      <div className="w-full max-w-sm rounded-t-2xl bg-surface p-5 shadow-card sm:rounded-2xl">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-base font-semibold text-ink">Nova conta</h2>
+          <button onClick={onClose} className="rounded-lg p-1.5 text-muted hover:bg-canvas" aria-label="Fechar">
+            <X size={18} />
+          </button>
+        </div>
+        <form
+          className="space-y-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!nome.trim()) return;
+            onSubmit({ nome: nome.trim(), tipo, saldoInicial: parseBRL(saldoInicial || "0") });
+          }}
+        >
+          <label className="block text-sm">
+            <span className="mb-1 block font-medium text-ink">Nome</span>
+            <input value={nome} onChange={(e) => setNome(e.target.value)} className="input" placeholder="Ex: Nubank, Carteira..." required />
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1 block font-medium text-ink">Tipo</span>
+            <select value={tipo} onChange={(e) => setTipo(e.target.value as TipoConta)} className="input">
+              {Object.entries(TIPO_CONTA_LABEL).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1 block font-medium text-ink">Saldo atual (agora, nessa conta)</span>
+            <input
+              value={saldoInicial}
+              onChange={(e) => setSaldoInicial(e.target.value)}
+              inputMode="decimal"
+              className="input"
+              placeholder="0,00"
+            />
+          </label>
+          <button type="submit" className="w-full rounded-xl bg-brand-500 py-2.5 text-sm font-semibold text-white hover:bg-brand-600">
+            Salvar
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

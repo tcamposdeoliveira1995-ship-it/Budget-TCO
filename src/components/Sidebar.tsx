@@ -14,7 +14,7 @@ import { classNames } from "@/lib/format";
 const NAV = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/movimentacoes", label: "Movimentações", icon: ArrowLeftRight },
-  { href: "/cartoes", label: "Cartões", icon: CreditCard },
+  { href: "/cartoes", label: "Contas e Cartões", icon: CreditCard },
   { href: "/contas-fixas", label: "Contas e Parcelas", icon: CalendarClock },
   { href: "/orcamento", label: "Orçamento", icon: Target },
 ];

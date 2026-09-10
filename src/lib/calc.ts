@@ -9,6 +9,7 @@
 import type {
   Cartao,
   Categoria,
+  Conta,
   FinanceState,
   Movimentacao,
   Orcamento,
@@ -55,16 +56,20 @@ export function sugerirVencimentoCartao(
   return isoFromParts(venc.ano, venc.mes, cartao.diaVencimento);
 }
 
-/** Saldo consolidado das contas: saldo inicial + tudo que já foi pago via conta. */
-export function saldoAtual(state: FinanceState): number {
-  const inicial = state.contas.reduce((s, c) => s + c.saldoInicial, 0);
-  const movimentado = state.movimentacoes.reduce((s, m) => {
-    if (!m.contaId || m.status !== "pago") return s;
+/** Saldo de UMA conta: saldo inicial + tudo que já foi pago nela. */
+export function saldoPorConta(conta: Conta, movimentacoes: Movimentacao[]): number {
+  const movimentado = movimentacoes.reduce((s, m) => {
+    if (m.contaId !== conta.id || m.status !== "pago") return s;
     if (m.tipo === "receita") return s + m.valor;
     if (m.tipo === "despesa") return s - m.valor;
     return s;
   }, 0);
-  return inicial + movimentado;
+  return conta.saldoInicial + movimentado;
+}
+
+/** Saldo consolidado das contas: saldo inicial + tudo que já foi pago via conta. */
+export function saldoAtual(state: FinanceState): number {
+  return state.contas.reduce((s, c) => s + saldoPorConta(c, state.movimentacoes), 0);
 }
 
 export function totalEntradasMes(
